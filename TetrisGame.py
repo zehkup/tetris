@@ -1,7 +1,5 @@
-from unittest import case
-
 from PySide6.QtCore import QBasicTimer, Qt
-from PySide6.QtGui import QFont, QPainter, QPen, QColor
+from PySide6.QtGui import QFont, QPainter, QPen
 from PySide6.QtWidgets import QMainWindow, QLabel
 from casedata import  *
 from Board import Board
@@ -18,7 +16,7 @@ class TetrisGame(QMainWindow):
         self.setWindowTitle("俄罗斯方块")
         self.setFixedSize(WINDOW_W, WINDOW_H)
         self.setStyleSheet("background-color: #1a1a2e;")
-        font = QFont("Consolas", 12, QFont.Bold)#字体对象
+        font = QFont("Consolas", 12, QFont.Weight.Bold)#字体对象
 
         self.lbl_score = QLabel("分数: 0", self)
         self.lbl_score.setFont(font)
@@ -41,10 +39,10 @@ class TetrisGame(QMainWindow):
         self.lbl_next.move(BOARD_W * BLOCK_SIZE + MARGIN * 2, MARGIN + 110)
 
         self.lbl_status = QLabel("", self)
-        self.lbl_status.setFont(QFont("Consolas", 14, QFont.Bold))
+        self.lbl_status.setFont(QFont("Consolas", 14, QFont.Weight.Bold))
         self.lbl_status.setStyleSheet("color: #ff4444;")
         self.lbl_status.setGeometry(BOARD_W * BLOCK_SIZE + MARGIN * 2, MARGIN + 300, 130, 60)
-        self.lbl_status.setAlignment(Qt.AlignCenter)
+        self.lbl_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # self.show()
 
@@ -149,21 +147,21 @@ class TetrisGame(QMainWindow):
 
     def keyPressEvent(self, event):
         k = event.key()
-        if k == Qt.Key_P and not self.board.game_over:
+        if k == Qt.Key.Key_P and not self.board.game_over:
             self.board.paused = not self.board.paused
             self.update()
             return
-        if k == Qt.Key_R and self.board.game_over:
+        if k == Qt.Key.Key_R and self.board.game_over:
             self.board = Board()
             self.timer.start(LEVEL_SPEED[0], self)
             self.update()
             return
         actions = {
-            Qt.Key_Left: self.board.move_left,
-            Qt.Key_Right: self.board.move_right,
-            Qt.Key_Down: lambda: self.board.move_down() or None,
-            Qt.Key_Up: self.board.rotate,
-            Qt.Key_Space: self.board.hard_drop,
+            Qt.Key.Key_Left: self.board.move_left,
+            Qt.Key.Key_Right: self.board.move_right,
+            Qt.Key.Key_Down: lambda: self.board.move_down() or None,
+            Qt.Key.Key_Up: self.board.rotate,
+            Qt.Key.Key_Space: self.board.hard_drop,
         }
         act = actions.get(k)
         if act:
