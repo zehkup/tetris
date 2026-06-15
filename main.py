@@ -347,6 +347,8 @@ from 俄罗斯方块.TetrisGame import TetrisGame
 # ── 启动 ────────────────────────────────────────────
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    # app = QApplication()
     game = TetrisGame()
     game.show()
-    sys.exit(app.exec())
+    sys.exit(app.exec())#qt的事件监听函数
+    # app.exec()

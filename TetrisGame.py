@@ -49,12 +49,13 @@ class TetrisGame(QMainWindow):
     def paintEvent(self, event):
         p = QPainter(self)
         self._draw_board(p)
+        self._draw_solidblocks(p)
         self._draw_ghost(p)
         self._draw_current(p)
         self._draw_next(p)
         self._draw_status(p)
 
-    # ② 画棋盘格子、已固定的方块
+    # ② 画棋盘格子
     def _draw_board(self, p):
         x, y = MARGIN, MARGIN
         w, h = BOARD_W * BLOCK_SIZE, BOARD_H * BLOCK_SIZE
@@ -64,13 +65,8 @@ class TetrisGame(QMainWindow):
             p.drawLine(x, y + r * BLOCK_SIZE, x + w, y + r * BLOCK_SIZE)
         for c in range(BOARD_W + 1):
             p.drawLine(x + c * BLOCK_SIZE, y, x + c * BLOCK_SIZE, y + h)
-        for r in range(BOARD_H):
-            for c in range(BOARD_W):
-                color = self.board.grid[r][c]
-                if color:
-                    self._draw_block(p, x + c * BLOCK_SIZE, y + r * BLOCK_SIZE, color)
 
-    # ③ 画半透明投影（落点预览）
+    # ③ 画当前方块的底部半透明投影（落点预览）
     def _draw_ghost(self, p):
         """半透明投影"""
         # if self.board.game_over or self.board.paused or not self.board.current:
@@ -90,7 +86,24 @@ class TetrisGame(QMainWindow):
                     by = MARGIN + (ghost_row + r) * BLOCK_SIZE
                     p.fillRect(bx + 1, by + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, color)
 
-    # ④ 画当前下落的方块
+    #画物块
+    def _draw_block(self, p, x, y, color, size=BLOCK_SIZE):
+        p.fillRect(x + 1, y + 1, size - 2, size - 2, color)
+        lighter = color.lighter(140)
+        p.setPen(QPen(lighter, 1))
+        p.drawLine(x + 1, y + 1, x + size - 2, y + 1)
+        p.drawLine(x + 1, y + 1, x + 1, y + size - 2)
+
+    #画棋盘底部已固定的方块
+    def _draw_solidblocks(self, p):
+        x, y = MARGIN, MARGIN
+        for r in range(BOARD_H):
+            for c in range(BOARD_W):
+                color = self.board.grid[r][c]
+                if color:
+                    self._draw_block(p, x + c * BLOCK_SIZE, y + r * BLOCK_SIZE, color)
+
+    # ④ 获取当前下落的方块，执行_draw_block画出来
     def _draw_current(self, p):
         if self.board.game_over or not self.board.current:
             return
@@ -103,13 +116,6 @@ class TetrisGame(QMainWindow):
                     bx = MARGIN + (self.board.current.col + c) * BLOCK_SIZE
                     by = MARGIN + (self.board.current.row + r) * BLOCK_SIZE
                     self._draw_block(p, bx, by, color)
-
-    def _draw_block(self, p, x, y, color, size=BLOCK_SIZE):
-        p.fillRect(x + 1, y + 1, size - 2, size - 2, color)
-        lighter = color.lighter(140)
-        p.setPen(QPen(lighter, 1))
-        p.drawLine(x + 1, y + 1, x + size - 2, y + 1)
-        p.drawLine(x + 1, y + 1, x + 1, y + size - 2)
 
     # ⑤ 画右侧"下一个方块"预览
     def _draw_next(self, p):
@@ -133,17 +139,17 @@ class TetrisGame(QMainWindow):
         else:
             self.lbl_status.setText("")
 
-    def timerEvent(self, event):
-        if event.timerId() == self.timer.timerId():
-            self.board.move_down()
-            self._update_labels()
-            self.update()
-
     def _update_labels(self):
         self.lbl_score.setText(f"分数: {self.board.score}")
         self.lbl_lines.setText(f"行数: {self.board.lines}")
         self.lbl_level.setText(f"等级: {self.board.level}")
         self.timer.start(LEVEL_SPEED[self.board.level], self)
+
+    def timerEvent(self, event):
+        if event.timerId() == self.timer.timerId():
+            self.board.move_down()
+            self._update_labels()
+            self.update()
 
     def keyPressEvent(self, event):
         k = event.key()
