@@ -92,7 +92,7 @@ class TetrisGame(QMainWindow):
 
     # ④ 画当前下落的方块
     def _draw_current(self, p):
-        if self.board.game_over or self.board.paused or not self.board.current:
+        if self.board.game_over or not self.board.current:
             return
         shape = self.board.current.shape
         color = self.board.current.color
